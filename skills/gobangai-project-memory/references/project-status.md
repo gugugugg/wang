@@ -238,3 +238,17 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
   - Supervised Top-1 is explicitly separated from game-playing strength.
   - Head-to-head evaluation, rule-baseline evaluation, stability metrics, and efficiency metrics are emphasized as necessary follow-up evidence.
 - Verified the report reads correctly with UTF-8 encoding.
+- Further revised the report to avoid vague "intelligence level" wording and use measurable terms:
+  strategy fitting ability, game-playing performance, decision quality, and efficiency-performance tradeoff.
+
+## 2026-05-21 GitHub Upload
+
+- Initialized a local Git repository in `D:\Users\mjc74\Desktop\GobangAI_PyTorch`.
+- Cleaned `.gitattributes` to avoid stale `.venv` and build-output LFS entries.
+- Confirmed `.gitignore` excludes local/generated files:
+  `.venv/`, `.uv-cache/`, `data/human_games.txt`, `*.pth`, `*.exe`, `build/`, `dist/`, and `artifacts/self_play/`.
+- Created initial commit:
+  `fc96da4 Initial GobangAI PyTorch project`
+- Added remote:
+  `https://github.com/gugugugg/wang.git`
+- Pushed `main` successfully to GitHub.

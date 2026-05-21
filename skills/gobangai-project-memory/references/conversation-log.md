@@ -132,6 +132,11 @@ Last updated: 2026-05-20 Asia/Shanghai
   - clarified that SNN improvement is an experimental hypothesis;
   - stated that Traditional M64 and SNN M64-B3-T6 are same-task, same-data, similar-width comparisons, not strictly parameter-equivalent;
   - emphasized game-based evaluation and efficiency metrics as necessary evidence beyond supervised Top-1.
+- User pointed out that "智能程度" was still too vague.
+- Revised `docs/SNN_OPENING_REPORT.md` again to avoid vague ability-level wording, replacing it with measurable terms such as strategy fitting ability, game-playing performance, decision quality, and running efficiency.
+- User requested uploading the project to GitHub and provided:
+  `https://github.com/gugugugg/wang`
+- Initialized a local Git repository, cleaned stale `.gitattributes` entries, verified ignored large/local files, created the initial commit, added the GitHub remote, and pushed `main` successfully.
 
 ## 2026-05-20
 
