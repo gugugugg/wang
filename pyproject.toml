@@ -1,0 +1,44 @@
+[project]
+name = "gobangai-pytorch"
+version = "0.1.0"
+description = "AlphaZero-style Gomoku research code for expert distillation and self-play scaling experiments."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy>=1.26",
+    "pygame>=2.5",
+    "numba>=0.59",
+    "torch>=2.11.0",
+]
+
+[project.scripts]
+train-base-model = "scripts.train_base_model:main"
+train-snn-model = "scripts.train_snn_model:main"
+train-self-play = "scripts.train_self_play:main"
+gobang-dashboard = "gobang_ai.ui.dashboard:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["gobang_ai", "scripts"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+
+# Virtual environments and uv
+.venv/
+venv/
+env/
+.uv-cache/
+
+# IDE and OS files
+.vs/
+.vscode/
+.idea/
+desktop.ini
+Thumbs.db
+
+# Build outputs
+build/
+dist/
+*.spec
+*.zip
+
+# Runtime outputs
+system_log.txt
+raw_sgf_data/
+Evaluation_Reports/
+data/raw_sgf_data/
+
+# Large generated artifacts
+models_scale_*/
+artifacts/self_play/
+*.pth
+*.pt
+*.onnx
+*.gguf
+*.safetensors
+
+# External binaries
+*.dll
+*.exe
+
+# Local experiment data
+data/human_games.txt
