@@ -152,6 +152,14 @@ Last updated: 2026-05-20 Asia/Shanghai
   - `SNN_M64_B3_T6_E10` vs `RuleBasedAI`: 15 wins, 5 losses, 0 draws, 0 illegal moves, average moves 51.6.
   - `base_M64_E10` vs `SNN_M64_B3_T6_E10`: `base_M64_E10` won 20/20, 0 draws, 0 illegal moves, average moves 66.5.
 - These results are recorded as pipeline validation only, not formal paper evidence.
+- User requested a 100-game trial before larger formal experiments.
+- Completed 100-game trial runs with seed 42, greedy argmax over legal moves, alternating sides:
+  - `base_M64_E10` vs `RuleBasedAI`: 100 wins, 0 losses, 0 draws, illegal moves 0, average moves 15.6; side split black 50/50, white 50/50; average inference time 2.356 ms/step for base model.
+  - `SNN_M64_B3_T6_E10` vs `RuleBasedAI`: 76 wins, 24 losses, 0 draws, illegal moves 0, average moves 48.3; side split black 35/50, white 41/50; average inference time 11.235 ms/step for SNN.
+  - `base_M64_E10` vs `SNN_M64_B3_T6_E10`: base won 100/100, SNN won 0/100, 0 draws, illegal moves 0, average moves 66.5; base side split black 50/50, white 50/50; average inference time base 2.713 ms/step, SNN 10.996 ms/step.
+- Trial CSV outputs were written under:
+  `artifacts/evaluation/trial_100/`
+- Interpretation recorded: the current SNN model is stronger than the weak rule baseline but much weaker and slower than the traditional M64 E10 model under greedy evaluation. Treat this as trial evidence before formal multi-seed or same-epoch matrix experiments.
 
 ## 2026-05-21
 

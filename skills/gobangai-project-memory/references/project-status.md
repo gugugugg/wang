@@ -297,6 +297,45 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
      Result: `base_M64_E10` won 20/20, draw 0, illegal moves 0, average moves 66.5.
 - Interpretation: these 20-game runs validate the evaluation pipeline only. They are not formal paper evidence. Next formal step is larger RuleBasedAI anchor experiments, then larger SNN-vs-traditional head-to-head, then same-width/same-epoch comparisons.
 
+## 2026-06-03 100-Game Trial Evaluation
+
+- Purpose: extend the 20-game minimal validation to 100 games per matchup before formal large-scale experiments.
+- Status: trial / extended validation, not final paper evidence.
+- Shared settings:
+  - decision mode: greedy argmax over legal moves
+  - seed: 42
+  - side control: alternating black/white sides
+  - device: CUDA, NVIDIA GeForce RTX 5060 Laptop GPU
+  - output directory: `artifacts/evaluation/trial_100/`
+- Commands and results:
+  1. Traditional final model vs weak rule baseline.
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b rule --model-a-name base_M64_E10 --model-b-name RuleBasedAI --games 100 --seed 42 --experiment-id trial100_base_vs_rule --output artifacts\evaluation\trial_100\base_m64_e10_vs_rule_100.csv
+     ```
+     Result: `base_M64_E10` won 100/100, lost 0, draw 0, illegal moves 0, average moves 15.6.
+     Side split: black 50/50, white 50/50.
+     Average inference time: `base_M64_E10` 2.356 ms/step, `RuleBasedAI` 0.405 ms/step.
+  2. SNN final model vs weak rule baseline.
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-b rule --model-a-name SNN_M64_B3_T6_E10 --model-b-name RuleBasedAI --games 100 --seed 42 --experiment-id trial100_snn_vs_rule --output artifacts\evaluation\trial_100\snn_m64_b3_t6_e10_vs_rule_100.csv
+     ```
+     Result: `SNN_M64_B3_T6_E10` won 76/100, lost 24, draw 0, illegal moves 0, average moves 48.3.
+     Side split: black 35/50, white 41/50.
+     Average inference time: `SNN_M64_B3_T6_E10` 11.235 ms/step, `RuleBasedAI` 0.800 ms/step.
+  3. Direct final traditional vs final SNN trial.
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 100 --seed 42 --experiment-id trial100_base_vs_snn --output artifacts\evaluation\trial_100\base_m64_e10_vs_snn_m64_b3_t6_e10_100.csv
+     ```
+     Result: `base_M64_E10` won 100/100, `SNN_M64_B3_T6_E10` won 0/100, draw 0, illegal moves 0, average moves 66.5.
+     Side split for `base_M64_E10`: black 50/50, white 50/50.
+     Average inference time: `base_M64_E10` 2.713 ms/step, `SNN_M64_B3_T6_E10` 10.996 ms/step.
+- Interpretation:
+  - The 100-game trial still shows the traditional M64 E10 model is much stronger than the current SNN M64-B3-T6 E10 under greedy evaluation.
+  - SNN remains stronger than the weak rule baseline but significantly weaker than the traditional M64 final model.
+  - SNN inference is roughly 4x slower than traditional M64 on this GPU because of LIF time steps.
+- Recommended next step:
+  - If continuing toward formal results, run the same-width/same-epoch matrix (`E01`, `E03`, `E05`, `E10`) or rerun final head-to-head with larger game count / multiple seeds before writing final paper claims.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.
