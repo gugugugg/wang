@@ -368,6 +368,41 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
   - Add paired-opening evaluation support: generate fixed legal opening sequences, run each opening twice with sides swapped, and report paired results.
   - After paired openings are implemented, rerun final E10 and same-epoch matrix as formal evidence.
 
+## 2026-06-03 Paired-Opening Evaluator
+
+- Added paired-opening support to:
+  - `gobang_ai/evaluation.py`
+  - `scripts/evaluate_match.py`
+- New CLI flags:
+  - `--paired-openings`: treats `--games` as the number of generated openings and runs each opening twice with sides swapped.
+  - `--min-opening-moves`: minimum generated opening length.
+  - `--max-opening-moves`: maximum generated opening length.
+- CSV behavior:
+  - each opening has a stable `opening_id`, such as `opening_0001`;
+  - the two paired rows share the same `start_moves`;
+  - black/white players are swapped between the two paired rows.
+- Compile check passed:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m py_compile gobang_ai\evaluation.py scripts\evaluate_match.py
+  ```
+- Small paired-opening validation:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 10 --seed 42 --experiment-id paired_validation_e10 --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_validation\base_m64_e10_vs_snn_m64_b3_t6_e10_10openings_20games.csv
+  ```
+- Validation result:
+  - rows: 20
+  - openings: 10
+  - valid paired openings: 10/10
+  - opening lengths: all 4 moves
+  - `base_M64_E10` won 18/20
+  - `SNN_M64_B3_T6_E10` won 2/20
+  - draws 0
+  - illegal moves 0
+  - average moves 47.9
+- Recommended formal next step:
+  - run paired-opening E10 with 50 or 100 openings, producing 100 or 200 total games;
+  - then rerun same-epoch matrix with paired openings.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.

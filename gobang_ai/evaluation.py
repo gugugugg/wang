@@ -202,13 +202,19 @@ def warmup_match_side(side: MatchSide, device: torch.device, steps: int = 3) -> 
         torch.cuda.synchronize()
 
 
-def apply_random_opening(env: GobangEnv, max_opening_moves: int, rng: random.Random) -> list[int]:
+def apply_random_opening(
+    env: GobangEnv,
+    max_opening_moves: int,
+    rng: random.Random,
+    min_opening_moves: int = 0,
+) -> list[int]:
     start_moves: list[int] = []
     if max_opening_moves <= 0:
         return start_moves
 
+    min_opening_moves = max(0, min(min_opening_moves, max_opening_moves))
     center = env.board_size // 2
-    count = rng.randint(0, max_opening_moves)
+    count = rng.randint(min_opening_moves, max_opening_moves)
     for _ in range(count):
         candidates = []
         for dr in range(-2, 3):
@@ -227,6 +233,40 @@ def apply_random_opening(env: GobangEnv, max_opening_moves: int, rng: random.Ran
     return start_moves
 
 
+def generate_opening_moves(
+    opening_id: int,
+    max_opening_moves: int,
+    seed: int,
+    board_size: int = 15,
+    min_opening_moves: int = 0,
+) -> list[int]:
+    if max_opening_moves <= 0:
+        return []
+
+    rng = random.Random(seed + opening_id)
+    env = GobangEnv(board_size)
+    env.reset(randomize_opening=False)
+    return apply_random_opening(
+        env,
+        max_opening_moves=max_opening_moves,
+        min_opening_moves=min_opening_moves,
+        rng=rng,
+    )
+
+
+def apply_opening_moves(env: GobangEnv, opening_moves: list[int]) -> list[int]:
+    applied: list[int] = []
+    for move in opening_moves:
+        valid = set(int(x) for x in env.get_valid_moves())
+        if move not in valid:
+            break
+        _board, _reward, done = env.step(move)
+        applied.append(move)
+        if done:
+            break
+    return applied
+
+
 def play_single_match_game(
     model_a: MatchSide,
     model_b: MatchSide,
@@ -239,11 +279,22 @@ def play_single_match_game(
     seed: int,
     device: torch.device,
     max_opening_moves: int = 0,
+    min_opening_moves: int = 0,
+    opening_moves: list[int] | None = None,
+    opening_id: str = "",
 ) -> dict[str, object]:
     rng = random.Random(seed + game_index)
     env = GobangEnv()
     board = env.reset(randomize_opening=False)
-    start_moves = apply_random_opening(env, max_opening_moves=max_opening_moves, rng=rng)
+    if opening_moves is not None:
+        start_moves = apply_opening_moves(env, opening_moves)
+    else:
+        start_moves = apply_random_opening(
+            env,
+            max_opening_moves=max_opening_moves,
+            min_opening_moves=min_opening_moves,
+            rng=rng,
+        )
     board = env.board.copy()
 
     black_total_ms = 0.0
@@ -323,7 +374,7 @@ def play_single_match_game(
         "game_seconds": time.perf_counter() - start_time,
         "decision_mode": "greedy_argmax",
         "seed": seed,
-        "opening_id": f"seed_{seed + game_index}" if max_opening_moves > 0 else "",
+        "opening_id": opening_id or (f"seed_{seed + game_index}" if max_opening_moves > 0 else ""),
         "start_moves": " ".join(str(m) for m in start_moves),
         "device": runtime["device"],
         "torch_version": runtime["torch_version"],
@@ -399,6 +450,8 @@ def run_match_evaluation(
     run_id: str | None = None,
     swap_sides: bool = True,
     max_opening_moves: int = 0,
+    min_opening_moves: int = 0,
+    paired_openings: bool = False,
 ) -> tuple[list[dict[str, object]], dict[str, object]]:
     random.seed(seed)
     np.random.seed(seed)
@@ -414,25 +467,56 @@ def run_match_evaluation(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     rows: list[dict[str, object]] = []
-    for game_index in range(1, games + 1):
-        if swap_sides and game_index % 2 == 0:
-            black_side, white_side = model_b, model_a
-        else:
-            black_side, white_side = model_a, model_b
-        row = play_single_match_game(
-            model_a=model_a,
-            model_b=model_b,
-            black_side=black_side,
-            white_side=white_side,
-            game_index=game_index,
-            total_games=games,
-            experiment_id=experiment_id,
-            run_id=run_id,
-            seed=seed,
-            device=device,
-            max_opening_moves=max_opening_moves,
-        )
-        rows.append(row)
+    if paired_openings:
+        total_games = games * 2
+        game_index = 1
+        for opening_index in range(1, games + 1):
+            opening_moves = generate_opening_moves(
+                opening_index,
+                max_opening_moves=max_opening_moves,
+                min_opening_moves=min_opening_moves,
+                seed=seed,
+            )
+            for black_side, white_side in ((model_a, model_b), (model_b, model_a)):
+                row = play_single_match_game(
+                    model_a=model_a,
+                    model_b=model_b,
+                    black_side=black_side,
+                    white_side=white_side,
+                    game_index=game_index,
+                    total_games=total_games,
+                    experiment_id=experiment_id,
+                    run_id=run_id,
+                    seed=seed,
+                    device=device,
+                    max_opening_moves=0,
+                    min_opening_moves=0,
+                    opening_moves=opening_moves,
+                    opening_id=f"opening_{opening_index:04d}",
+                )
+                rows.append(row)
+                game_index += 1
+    else:
+        for game_index in range(1, games + 1):
+            if swap_sides and game_index % 2 == 0:
+                black_side, white_side = model_b, model_a
+            else:
+                black_side, white_side = model_a, model_b
+            row = play_single_match_game(
+                model_a=model_a,
+                model_b=model_b,
+                black_side=black_side,
+                white_side=white_side,
+                game_index=game_index,
+                total_games=games,
+                experiment_id=experiment_id,
+                run_id=run_id,
+                seed=seed,
+                device=device,
+                max_opening_moves=max_opening_moves,
+                min_opening_moves=min_opening_moves,
+            )
+            rows.append(row)
 
     with output_path.open("w", newline="", encoding="utf-8") as fp:
         writer = csv.DictWriter(fp, fieldnames=MATCH_CSV_FIELDS)

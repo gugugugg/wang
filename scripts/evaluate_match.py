@@ -19,13 +19,15 @@ def main():
     parser.add_argument("--model-b", required=True, help="Checkpoint path for model B, or 'rule'.")
     parser.add_argument("--model-a-name", default=None, help="Display name for model A.")
     parser.add_argument("--model-b-name", default=None, help="Display name for model B.")
-    parser.add_argument("--games", type=int, default=20, help="Number of games to play.")
+    parser.add_argument("--games", type=int, default=20, help="Number of games to play, or opening count with --paired-openings.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed.")
     parser.add_argument("--experiment-id", default="minimal_validation", help="Experiment id written to CSV.")
     parser.add_argument("--run-id", default=None, help="Optional run id written to CSV.")
     parser.add_argument("--output", required=True, help="Output CSV path.")
     parser.add_argument("--no-swap-sides", action="store_true", help="Disable alternating black/white sides.")
+    parser.add_argument("--min-opening-moves", type=int, default=0, help="Minimum generated opening length.")
     parser.add_argument("--max-opening-moves", type=int, default=0, help="Optional random opening length cap.")
+    parser.add_argument("--paired-openings", action="store_true", help="Run each generated opening twice with sides swapped.")
     args = parser.parse_args()
 
     model_a_name = args.model_a_name or default_name(args.model_a)
@@ -42,6 +44,8 @@ def main():
         run_id=args.run_id,
         swap_sides=not args.no_swap_sides,
         max_opening_moves=args.max_opening_moves,
+        min_opening_moves=args.min_opening_moves,
+        paired_openings=args.paired_openings,
     )
 
     print(f"output={args.output}")

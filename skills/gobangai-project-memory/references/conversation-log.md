@@ -170,6 +170,17 @@ Last updated: 2026-05-20 Asia/Shanghai
   - E10: base 100/100, SNN 0/100, average moves 66.5, illegal 0; base won as both black and white.
 - Average inference times in the matrix were about 2.7 ms/step for traditional M64 and 10.8-11.2 ms/step for SNN.
 - Important conclusion: repeating deterministic greedy empty-board games has limited value after this point. Next evaluator improvement should be paired openings: fixed opening sequences, each replayed with sides swapped.
+- User agreed to implement paired openings.
+- Added paired-opening support:
+  - `--paired-openings` treats `--games` as opening count and runs two side-swapped games per opening.
+  - `--min-opening-moves` and `--max-opening-moves` control generated opening length.
+  - CSV rows now record shared `opening_id` and `start_moves` for paired games.
+- Compile check passed after paired-opening changes.
+- Ran paired-opening validation for E10 with 10 fixed 4-move openings, 20 games total:
+  - output: `artifacts/evaluation/paired_opening_validation/base_m64_e10_vs_snn_m64_b3_t6_e10_10openings_20games.csv`
+  - valid paired openings: 10/10
+  - base won 18/20, SNN won 2/20, draws 0, illegal moves 0, average moves 47.9.
+- Next recommended run: paired-opening E10 with 50 or 100 openings, then same-epoch paired-opening matrix.
 
 ## 2026-05-21
 
