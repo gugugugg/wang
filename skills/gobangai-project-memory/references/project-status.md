@@ -403,6 +403,42 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
   - run paired-opening E10 with 50 or 100 openings, producing 100 or 200 total games;
   - then rerun same-epoch matrix with paired openings.
 
+## 2026-06-03 E10 Paired-Opening 50-Opening Evaluation
+
+- Purpose: scale paired-opening E10 validation to 50 openings / 100 games.
+- Status: stronger trial evidence; still keep separate from final paper tables until same-epoch paired matrix is complete.
+- Settings:
+  - matchup: `base_M64_E10` vs `SNN_M64_B3_T6_E10`
+  - openings: 50
+  - games: 100 total, two side-swapped games per opening
+  - opening length: fixed 4 moves
+  - seed: 42
+  - decision mode: greedy argmax over legal moves
+  - output: `artifacts/evaluation/paired_opening_e10_50/base_m64_e10_vs_snn_m64_b3_t6_e10_50openings_100games.csv`
+- Command:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 50 --seed 42 --experiment-id paired50_e10_base_vs_snn --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_e10_50\base_m64_e10_vs_snn_m64_b3_t6_e10_50openings_100games.csv
+  ```
+- Result:
+  - rows: 100
+  - openings: 50
+  - valid pairs: 50/50
+  - opening lengths: all 4 moves
+  - `base_M64_E10` won 93/100
+  - `SNN_M64_B3_T6_E10` won 7/100
+  - draws 0
+  - illegal moves 0
+  - average moves 44.6
+  - base side split: black 49/50, white 44/50
+  - paired outcomes: base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings
+  - average inference time: base 2.834 ms/step, SNN 11.583 ms/step
+- Interpretation:
+  - Paired openings reduce the empty-board color-pattern artifact.
+  - The traditional M64 E10 model remains clearly stronger than SNN M64-B3-T6 E10 under greedy paired-opening evaluation.
+  - SNN is still about 4x slower per step on the local GPU.
+- Recommended next step:
+  - run paired-opening same-epoch matrix for E01/E03/E05/E10 with the same 50-opening setting.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.

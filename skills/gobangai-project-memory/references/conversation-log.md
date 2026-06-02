@@ -181,6 +181,17 @@ Last updated: 2026-05-20 Asia/Shanghai
   - valid paired openings: 10/10
   - base won 18/20, SNN won 2/20, draws 0, illegal moves 0, average moves 47.9.
 - Next recommended run: paired-opening E10 with 50 or 100 openings, then same-epoch paired-opening matrix.
+- User requested to continue, so the paired-opening E10 evaluation was scaled to 50 openings / 100 games.
+- Output:
+  `artifacts/evaluation/paired_opening_e10_50/base_m64_e10_vs_snn_m64_b3_t6_e10_50openings_100games.csv`
+- Settings: seed 42, fixed 4-move openings, greedy argmax, two side-swapped games per opening.
+- Result:
+  - 50/50 valid opening pairs;
+  - base won 93/100, SNN won 7/100, draws 0, illegal moves 0, average moves 44.6;
+  - base side split: black 49/50, white 44/50;
+  - paired outcomes: base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings;
+  - average inference: base 2.834 ms/step, SNN 11.583 ms/step.
+- Interpretation: paired openings reduce the earlier deterministic color-pattern artifact; E10 still strongly favors the traditional M64 model.
 
 ## 2026-05-21
 
