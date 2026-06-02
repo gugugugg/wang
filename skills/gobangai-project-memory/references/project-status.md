@@ -336,6 +336,38 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
 - Recommended next step:
   - If continuing toward formal results, run the same-width/same-epoch matrix (`E01`, `E03`, `E05`, `E10`) or rerun final head-to-head with larger game count / multiple seeds before writing final paper claims.
 
+## 2026-06-03 Same-Epoch 100-Game Matrix
+
+- Purpose: compare traditional M64 and SNN M64-B3-T6 checkpoints at matched epochs.
+- Status: trial matrix, not final paper evidence.
+- Shared settings:
+  - matchups: `base_M64_E01/E03/E05/E10` vs `SNN_M64_B3_T6_E01/E03/E05/E10`
+  - games: 100 per matchup
+  - seed: 42
+  - decision mode: greedy argmax over legal moves
+  - side control: alternating black/white sides
+  - start board: empty board, no opening perturbation
+  - output directory: `artifacts/evaluation/epoch_matrix_100/`
+- Commands:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E01.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E01.pth --model-a-name base_M64_E01 --model-b-name SNN_M64_B3_T6_E01 --games 100 --seed 42 --experiment-id matrix100_base_vs_snn_e01 --output artifacts\evaluation\epoch_matrix_100\base_m64_e01_vs_snn_m64_b3_t6_e01_100.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E03.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E03.pth --model-a-name base_M64_E03 --model-b-name SNN_M64_B3_T6_E03 --games 100 --seed 42 --experiment-id matrix100_base_vs_snn_e03 --output artifacts\evaluation\epoch_matrix_100\base_m64_e03_vs_snn_m64_b3_t6_e03_100.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E05.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E05.pth --model-a-name base_M64_E05 --model-b-name SNN_M64_B3_T6_E05 --games 100 --seed 42 --experiment-id matrix100_base_vs_snn_e05 --output artifacts\evaluation\epoch_matrix_100\base_m64_e05_vs_snn_m64_b3_t6_e05_100.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 100 --seed 42 --experiment-id matrix100_base_vs_snn_e10 --output artifacts\evaluation\epoch_matrix_100\base_m64_e10_vs_snn_m64_b3_t6_e10_100.csv
+  ```
+- Results:
+  - E01: `base_M64_E01` won 50/100, `SNN_M64_B3_T6_E01` won 50/100, draw 0, illegal 0, average moves 62.0. Black won 100/100. Base side split: black 50/50, white 0/50. Average inference: base 2.743 ms/step, SNN 11.171 ms/step.
+  - E03: `base_M64_E03` won 50/100, `SNN_M64_B3_T6_E03` won 50/100, draw 0, illegal 0, average moves 64.0. White won 100/100. Base side split: black 0/50, white 50/50. Average inference: base 2.712 ms/step, SNN 11.012 ms/step.
+  - E05: `base_M64_E05` won 50/100, `SNN_M64_B3_T6_E05` won 50/100, draw 0, illegal 0, average moves 101.0. Black won 100/100. Base side split: black 50/50, white 0/50. Average inference: base 2.744 ms/step, SNN 11.049 ms/step.
+  - E10: `base_M64_E10` won 100/100, `SNN_M64_B3_T6_E10` won 0/100, draw 0, illegal 0, average moves 66.5. Black won 50/100, white won 50/100. Base side split: black 50/50, white 50/50. Average inference: base 2.671 ms/step, SNN 10.764 ms/step.
+- Interpretation:
+  - E01/E03/E05 50/50 results are not evidence of equal strength. They are deterministic greedy empty-board patterns dominated by color/winner-color effects.
+  - E10 remains clearly favorable to the traditional M64 model under this evaluation setup.
+  - Repeating the same empty-board deterministic game 100 or 200 times gives limited extra information.
+- Recommended next step:
+  - Add paired-opening evaluation support: generate fixed legal opening sequences, run each opening twice with sides swapped, and report paired results.
+  - After paired openings are implemented, rerun final E10 and same-epoch matrix as formal evidence.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.

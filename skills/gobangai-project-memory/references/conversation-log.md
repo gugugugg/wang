@@ -160,6 +160,16 @@ Last updated: 2026-05-20 Asia/Shanghai
 - Trial CSV outputs were written under:
   `artifacts/evaluation/trial_100/`
 - Interpretation recorded: the current SNN model is stronger than the weak rule baseline but much weaker and slower than the traditional M64 E10 model under greedy evaluation. Treat this as trial evidence before formal multi-seed or same-epoch matrix experiments.
+- User asked to continue, and the same-epoch 100-game matrix was run for E01/E03/E05/E10.
+- Outputs were written under:
+  `artifacts/evaluation/epoch_matrix_100/`
+- Same-epoch matrix summary:
+  - E01: base 50/100, SNN 50/100, average moves 62.0, illegal 0; black won 100/100, so this is a deterministic color-pattern result, not equal-strength evidence.
+  - E03: base 50/100, SNN 50/100, average moves 64.0, illegal 0; white won 100/100, also a deterministic color-pattern result.
+  - E05: base 50/100, SNN 50/100, average moves 101.0, illegal 0; black won 100/100, also a deterministic color-pattern result.
+  - E10: base 100/100, SNN 0/100, average moves 66.5, illegal 0; base won as both black and white.
+- Average inference times in the matrix were about 2.7 ms/step for traditional M64 and 10.8-11.2 ms/step for SNN.
+- Important conclusion: repeating deterministic greedy empty-board games has limited value after this point. Next evaluator improvement should be paired openings: fixed opening sequences, each replayed with sides swapped.
 
 ## 2026-05-21
 
