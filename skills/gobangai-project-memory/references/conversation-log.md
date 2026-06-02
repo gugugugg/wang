@@ -192,6 +192,17 @@ Last updated: 2026-05-20 Asia/Shanghai
   - paired outcomes: base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings;
   - average inference: base 2.834 ms/step, SNN 11.583 ms/step.
 - Interpretation: paired openings reduce the earlier deterministic color-pattern artifact; E10 still strongly favors the traditional M64 model.
+- User requested to continue, so the paired-opening same-epoch matrix was run with 50 openings / 100 games per epoch.
+- Output directory:
+  `artifacts/evaluation/paired_opening_epoch_matrix_50/`
+- Shared settings: seed 42, fixed 4-move openings, greedy argmax, two side-swapped games per opening.
+- Matrix results:
+  - E01: base 99/100, SNN 1/100, average moves 30.6, illegal 0; base 2-0 on 49 openings, split 1-1 on 1 opening, SNN 2-0 on 0 openings.
+  - E03: base 98/100, SNN 2/100, average moves 35.7, illegal 0; base 2-0 on 48 openings, split 1-1 on 2 openings, SNN 2-0 on 0 openings.
+  - E05: base 97/100, SNN 3/100, average moves 39.9, illegal 0; base 2-0 on 47 openings, split 1-1 on 3 openings, SNN 2-0 on 0 openings.
+  - E10: base 93/100, SNN 7/100, average moves 45.0, illegal 0; base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings.
+- Average inference stayed near 2.7-2.8 ms/step for traditional M64 and 11.0-11.5 ms/step for SNN.
+- Interpretation: paired-opening results are the strongest current game-strength evidence and consistently favor the traditional M64 model at all matched epochs.
 
 ## 2026-05-21
 

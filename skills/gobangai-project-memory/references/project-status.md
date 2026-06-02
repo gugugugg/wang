@@ -439,6 +439,39 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
 - Recommended next step:
   - run paired-opening same-epoch matrix for E01/E03/E05/E10 with the same 50-opening setting.
 
+## 2026-06-03 Paired-Opening Same-Epoch Matrix, 50 Openings
+
+- Purpose: rerun the same-epoch M64 vs SNN matrix with paired openings to avoid deterministic empty-board color artifacts.
+- Status: strongest current game-strength evidence.
+- Shared settings:
+  - openings: 50
+  - games: 100 per epoch matchup
+  - opening length: fixed 4 moves
+  - seed: 42
+  - decision mode: greedy argmax over legal moves
+  - pairing: every opening played twice with sides swapped
+  - output directory: `artifacts/evaluation/paired_opening_epoch_matrix_50/`
+- Commands:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E01.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E01.pth --model-a-name base_M64_E01 --model-b-name SNN_M64_B3_T6_E01 --games 50 --seed 42 --experiment-id paired50_matrix_e01 --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_epoch_matrix_50\base_m64_e01_vs_snn_m64_b3_t6_e01_50openings_100games.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E03.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E03.pth --model-a-name base_M64_E03 --model-b-name SNN_M64_B3_T6_E03 --games 50 --seed 42 --experiment-id paired50_matrix_e03 --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_epoch_matrix_50\base_m64_e03_vs_snn_m64_b3_t6_e03_50openings_100games.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E05.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E05.pth --model-a-name base_M64_E05 --model-b-name SNN_M64_B3_T6_E05 --games 50 --seed 42 --experiment-id paired50_matrix_e05 --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_epoch_matrix_50\base_m64_e05_vs_snn_m64_b3_t6_e05_50openings_100games.csv
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 50 --seed 42 --experiment-id paired50_matrix_e10 --min-opening-moves 4 --max-opening-moves 4 --paired-openings --output artifacts\evaluation\paired_opening_epoch_matrix_50\base_m64_e10_vs_snn_m64_b3_t6_e10_50openings_100games.csv
+  ```
+- Results:
+  - E01: base 99/100, SNN 1/100, draws 0, illegal 0, average moves 30.6. Valid pairs 50/50. Base side split: black 49/50, white 50/50. Paired outcomes: base 2-0 on 49 openings, split 1-1 on 1 opening, SNN 2-0 on 0 openings. Average inference: base 2.698 ms/step, SNN 11.011 ms/step.
+  - E03: base 98/100, SNN 2/100, draws 0, illegal 0, average moves 35.7. Valid pairs 50/50. Base side split: black 49/50, white 49/50. Paired outcomes: base 2-0 on 48 openings, split 1-1 on 2 openings, SNN 2-0 on 0 openings. Average inference: base 2.790 ms/step, SNN 11.334 ms/step.
+  - E05: base 97/100, SNN 3/100, draws 0, illegal 0, average moves 39.9. Valid pairs 50/50. Base side split: black 49/50, white 48/50. Paired outcomes: base 2-0 on 47 openings, split 1-1 on 3 openings, SNN 2-0 on 0 openings. Average inference: base 2.780 ms/step, SNN 11.364 ms/step.
+  - E10: base 93/100, SNN 7/100, draws 0, illegal 0, average moves 45.0. Valid pairs 50/50. Base side split: black 49/50, white 44/50. Paired outcomes: base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings. Average inference: base 2.803 ms/step, SNN 11.469 ms/step.
+- Interpretation:
+  - Paired openings remove the previous empty-board 50/50 artifact.
+  - The traditional M64 model is consistently stronger than the SNN M64-B3-T6 model at every matched epoch tested.
+  - SNN game performance improves slightly with training epoch in the paired matrix, from 1 win at E01 to 7 wins at E10, but it remains far behind the traditional baseline.
+  - SNN inference remains about 4x slower than traditional M64 on the local CUDA GPU.
+- Recommended next step:
+  - prepare a summary table/Markdown report for paper writing;
+  - optionally run 100 openings / 200 games for E10 only if stronger formal confidence is needed.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.
