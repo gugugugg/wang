@@ -206,6 +206,33 @@ Recommended experiment framing:
 - variables: architecture type, SNN time steps, model width, training budget
 - metrics: Elo/win rate, head-to-head win rate, first/second-player win rates, average move count, invalid move rate, loss, supervised Top-1, runtime
 
+## 2026-06-03 Direction Reassessment
+
+- User and assistant agreed the original direction has limited research value beyond a本科毕业设计.
+- Current evidence does not support framing the work as "SNN improves intelligence" or "SNN improves chess-playing strength."
+- Stronger and more honest framing:
+  - `LIF-SNN 在五子棋策略建模中的适用性评估`
+  - `基于 LIF-SNN 与 CNN/ResNet 的五子棋策略模型对比研究`
+  - `基于配对开局评测的 LIF-SNN 与传统 CNN/ResNet 五子棋策略模型对比分析`
+- Core conclusion to preserve:
+  - The current LIF-SNN model learns some Gomoku policy patterns and can beat a weak rule baseline.
+  - It is not unable to play, but it is substantially weaker than the traditional CNN/ResNet M64 baseline in supervised fitting and paired-opening head-to-head games.
+  - It is also slower on the local CUDA GPU because LIF time steps add computation.
+- Best project positioning:
+  - suitable as a complete, honest undergraduate thesis with engineering implementation, experiments, negative result analysis, and evaluation methodology;
+  - not recommended as a longer-term research direction for higher-level publication or advanced work unless the research object changes.
+- Do not keep investing in proving SNN superiority on Gomoku. If continuing SNN research, switch to tasks that match SNN strengths:
+  event-camera recognition, temporal gesture recognition, low-power sensing, edge deployment, EEG/biomedical time-series classification, or sound event detection.
+- Thesis writing should emphasize:
+  - expert-label bug diagnosis and repair;
+  - traditional and SNN model implementation;
+  - supervised distillation metrics;
+  - RuleBasedAI anchor evaluation;
+  - direct head-to-head evaluation;
+  - paired-opening evaluation;
+  - inference-efficiency comparison;
+  - negative result and applicability analysis.
+
 ## uv Notes
 
 - `uv` default cache at `D:\AI_Caches\uv_cache` had access errors.

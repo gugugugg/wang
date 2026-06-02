@@ -203,6 +203,22 @@ Last updated: 2026-05-20 Asia/Shanghai
   - E10: base 93/100, SNN 7/100, average moves 45.0, illegal 0; base 2-0 on 43 openings, split 1-1 on 7 openings, SNN 2-0 on 0 openings.
 - Average inference stayed near 2.7-2.8 ms/step for traditional M64 and 11.0-11.5 ms/step for SNN.
 - Interpretation: paired-opening results are the strongest current game-strength evidence and consistently favor the traditional M64 model at all matched epochs.
+- User reflected that the current chess-model/SNN direction has limited value beyond a本科毕业设计.
+- Assistant agreed:
+  - it is enough for an undergraduate thesis because the project has a complete engineering and experimental loop;
+  - it is not strong enough as a higher-level research direction because Gomoku AI is mature, direct CNN-to-SNN replacement is weak novelty, and the result is a negative comparison without deeper theory or hardware evidence.
+- User concluded the direction seems problematic but still acceptable for本科毕业设计.
+- Recorded new recommended framing:
+  - do not present the work as proving SNN improves intelligence;
+  - present it as an applicability evaluation / comparison study of LIF-SNN and CNN/ResNet for Gomoku strategy modeling.
+- Recorded practical conclusion:
+  - SNN is not completely unable to play because it beats RuleBasedAI and occasionally wins paired-opening games;
+  - however, under current architecture/training/evaluation it is clearly weaker than traditional M64 and slower on GPU.
+- Recommended thesis titles:
+  - `LIF-SNN 在五子棋策略建模中的适用性评估`
+  - `基于 LIF-SNN 与 CNN/ResNet 的五子棋策略模型对比研究`
+  - `基于配对开局评测的 LIF-SNN 与传统 CNN/ResNet 五子棋策略模型对比分析`
+- Recommended future direction if continuing SNN research: leave Gomoku and move to event-driven/time-series/low-power sensing tasks where SNN has a more natural advantage.
 
 ## 2026-05-21
 
