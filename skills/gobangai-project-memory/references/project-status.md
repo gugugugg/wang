@@ -228,6 +228,75 @@ uv run python -m py_compile worker.py model.py game_env.py mcts_engine.py task_t
 4. Evaluate traditional-vs-SNN head-to-head games as black and white.
 5. Record supervised metrics, win-rate metrics, and runtime metrics for paper tables.
 
+## 2026-06-03 Evaluation Data Plan
+
+- CSV template added:
+  `docs/EVALUATION_MATCH_TEMPLATE.csv`
+- New standing rule: every evaluation/training step must be recorded in project memory, including command purpose, command pattern, checkpoint paths, result paths, game count, seed, decision mode, opponent setup, key metrics, and whether it is a minimal validation or formal result.
+- Real evaluation outputs should be written under:
+  `artifacts/evaluation/`
+- The first evaluation script should be added as:
+  `scripts/evaluate_match.py`
+- Shared match logic should be added to:
+  `gobang_ai/evaluation.py`
+- Keep `sample_policy_action` for later self-play training; evaluation should default to greedy argmax over legal moves.
+- Do not add SNN spike-rate statistics in the first evaluation version. It is not needed for the current paper conclusion.
+- First script version should record one CSV row per game with:
+  experiment id, run id, match type, model names/paths, black/white player, winner, result for model A, move count, illegal move count, black/white inference time, game duration, decision mode, seed, opening fields, device, torch version, GPU name, and notes.
+- Minimum validation experiments:
+  1. `base_M64_E10` vs `RuleBasedAI`, 20 games.
+  2. `SNN_M64_B3_T6_E10` vs `RuleBasedAI`, 20 games.
+  3. `base_M64_E10` vs `SNN_M64_B3_T6_E10`, 20 games.
+- Formal experiment order:
+  1. Traditional and SNN models vs `RuleBasedAI` as an anchor baseline.
+  2. Final SNN vs final traditional model head-to-head.
+  3. Same-width, same-epoch comparisons:
+     `E01`, `E03`, `E05`, and `E10`.
+  4. Increase game count and repeat with multiple seeds to reduce accidental variance.
+- Formal reporting metrics:
+  win/loss/draw, black/white win rates, average moves, illegal moves, per-step inference time, per-game time, and later Wilson confidence intervals / relative Elo if needed.
+
+## 2026-06-03 Minimal Evaluation Implementation
+
+- Added reusable greedy match evaluation logic to:
+  `gobang_ai/evaluation.py`
+- Added CLI script:
+  `scripts/evaluate_match.py`
+- The evaluator supports:
+  - checkpoint vs `RuleBasedAI`;
+  - checkpoint vs checkpoint;
+  - SNN and traditional checkpoint loading through `load_model_from_checkpoint`;
+  - greedy argmax over legal moves;
+  - alternating black/white sides by default;
+  - one CSV row per game using the template fields;
+  - model warmup before timing to reduce CUDA cold-start bias.
+- Compile check passed:
+  ```powershell
+  $env:UV_CACHE_DIR='.uv-cache'; uv run python -m py_compile gobang_ai\evaluation.py scripts\evaluate_match.py
+  ```
+- Minimal validation outputs were written to:
+  `artifacts/evaluation/minimal_validation/`
+- Minimal validation commands and results:
+  1. Purpose: traditional final model vs weak rule baseline.
+     Command pattern:
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b rule --model-a-name base_M64_E10 --model-b-name RuleBasedAI --games 20 --seed 42 --experiment-id minimal_base_vs_rule --output artifacts\evaluation\minimal_validation\base_m64_e10_vs_rule_20.csv
+     ```
+     Result: `base_M64_E10` won 20/20, draw 0, illegal moves 0, average moves 16.8.
+  2. Purpose: SNN final model vs weak rule baseline.
+     Command pattern:
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-b rule --model-a-name SNN_M64_B3_T6_E10 --model-b-name RuleBasedAI --games 20 --seed 42 --experiment-id minimal_snn_vs_rule --output artifacts\evaluation\minimal_validation\snn_m64_b3_t6_e10_vs_rule_20.csv
+     ```
+     Result: `SNN_M64_B3_T6_E10` won 15/20, lost 5/20, draw 0, illegal moves 0, average moves 51.6.
+  3. Purpose: direct final traditional vs final SNN pipeline validation.
+     Command pattern:
+     ```powershell
+     $env:UV_CACHE_DIR='.uv-cache'; uv run python -m scripts.evaluate_match --model-a artifacts\base_models\M64\base_M64_E10.pth --model-b artifacts\snn_models\SNN_M64_B3_T6_E10.pth --model-a-name base_M64_E10 --model-b-name SNN_M64_B3_T6_E10 --games 20 --seed 42 --experiment-id minimal_base_vs_snn --output artifacts\evaluation\minimal_validation\base_m64_e10_vs_snn_m64_b3_t6_e10_20.csv
+     ```
+     Result: `base_M64_E10` won 20/20, draw 0, illegal moves 0, average moves 66.5.
+- Interpretation: these 20-game runs validate the evaluation pipeline only. They are not formal paper evidence. Next formal step is larger RuleBasedAI anchor experiments, then larger SNN-vs-traditional head-to-head, then same-width/same-epoch comparisons.
+
 ## 2026-05-21 Report Update
 
 - Rewrote `docs/SNN_OPENING_REPORT.md` with more rigorous academic language.

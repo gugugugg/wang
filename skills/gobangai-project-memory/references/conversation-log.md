@@ -121,6 +121,38 @@ Last updated: 2026-05-20 Asia/Shanghai
 - Do not train from the old wrong-label checkpoints.
 - Do not use supervised validation Top-1 alone as playing-strength evidence; report win-rate or Elo-style results.
 
+## 2026-06-03
+
+- User decided the evaluation workflow should start with a minimal validation experiment, then scale up to reduce accidental variance.
+- User requested that every step be written down in project memory before starting the minimal validation work.
+- Added this standing rule to `skills/gobangai-project-memory/SKILL.md`: record every evaluation/training step with command purpose, command pattern, checkpoint paths, result paths, game count, seed, decision mode, opponent setup, key metrics, and whether it is minimal validation or formal result.
+- Decided to keep `sample_policy_action` for later self-play training and use greedy argmax over legal moves for evaluation.
+- Decided SNN spike-rate statistics are not needed for the current paper because the core conclusion depends on strategy fitting, game performance, decision quality, and runtime efficiency.
+- Added CSV game-detail template:
+  `docs/EVALUATION_MATCH_TEMPLATE.csv`
+- Recorded intended implementation locations:
+  - match/evaluation logic: `gobang_ai/evaluation.py`
+  - CLI script: `scripts/evaluate_match.py`
+  - generated results: `artifacts/evaluation/`
+- Planned experiment order:
+  1. minimal validation: traditional vs RuleBasedAI, SNN vs RuleBasedAI, traditional vs SNN;
+  2. formal RuleBasedAI anchor experiments;
+  3. formal final SNN vs traditional head-to-head;
+  4. same-width, same-epoch SNN vs traditional comparisons;
+  5. larger game counts and multiple seeds.
+- Implemented the first greedy match evaluator:
+  - shared logic in `gobang_ai/evaluation.py`;
+  - CLI entry in `scripts/evaluate_match.py`;
+  - output location `artifacts/evaluation/minimal_validation/`.
+- Added model warmup before timing to reduce CUDA cold-start bias in per-step inference metrics.
+- Compile check passed for:
+  `gobang_ai/evaluation.py` and `scripts/evaluate_match.py`.
+- Completed minimal validation runs with seed 42, 20 games each, greedy argmax over legal moves, alternating sides:
+  - `base_M64_E10` vs `RuleBasedAI`: 20 wins, 0 losses, 0 draws, 0 illegal moves, average moves 16.8.
+  - `SNN_M64_B3_T6_E10` vs `RuleBasedAI`: 15 wins, 5 losses, 0 draws, 0 illegal moves, average moves 51.6.
+  - `base_M64_E10` vs `SNN_M64_B3_T6_E10`: `base_M64_E10` won 20/20, 0 draws, 0 illegal moves, average moves 66.5.
+- These results are recorded as pipeline validation only, not formal paper evidence.
+
 ## 2026-05-21
 
 - User clarified that `docs/SNN_OPENING_REPORT.md` should be read with UTF-8 encoding; the file itself was not corrupted.

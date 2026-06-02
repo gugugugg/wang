@@ -1,0 +1,1 @@
+experiment_id,run_id,match_type,game_index,total_games,model_a_name,model_a_path,model_b_name,model_b_path,black_player,white_player,winner,winner_model,result_for_model_a,winner_type,moves,illegal_moves,black_infer_ms_avg,white_infer_ms_avg,black_total_infer_ms,white_total_infer_ms,game_seconds,decision_mode,seed,opening_id,start_moves,device,torch_version,gpu_name,notes

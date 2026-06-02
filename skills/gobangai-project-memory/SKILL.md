@@ -14,8 +14,13 @@ Use this skill as the project-local memory for `D:\Users\mjc74\Desktop\GobangAI_
 3. Update both references after meaningful changes:
    - `project-status.md`: current files, known issues, environment, training/data/model state.
    - `conversation-log.md`: concise dated summary of user decisions and completed actions.
-4. Keep updates factual and concise. Do not paste long command logs.
-5. Treat old checkpoints as suspect unless they were trained after the expert-label bug was fixed.
+4. For evaluation/training experiments, write down every executed step:
+   - command purpose and exact command pattern;
+   - checkpoint paths and dataset/result paths;
+   - game count, seed, decision mode, and opponent setup;
+   - key metrics and whether the run is only a minimal validation or a formal result.
+5. Keep updates factual and concise. Do not paste long command logs.
+6. Treat old checkpoints as suspect unless they were trained after the expert-label bug was fixed.
 
 ## Project Rules
 
@@ -24,6 +29,9 @@ Use this skill as the project-local memory for `D:\Users\mjc74\Desktop\GobangAI_
 - Do not overwrite the clean dataset unless explicitly requested:
   `human_games.txt`
 - Do not continue training from old wrong-label models.
+- Evaluation output should be written under `artifacts/evaluation/`.
+- Evaluation should default to greedy argmax over legal moves; keep `sample_policy_action` for later self-play training.
+- When doing minimal validation or formal experiments, update project memory after each completed step so the sequence of actions is recoverable.
 - Before long training, verify:
   - expert labels use the current move, not `moves[i + 1]`;
   - inference uses 3 feature planes;
